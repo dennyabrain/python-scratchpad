@@ -1,19 +1,19 @@
 from fastapi import FastAPI
 
-from app.guardrail.validator.registry import ValidatorRegistry
-from app.guardrail.validator.registry import load_validator_data
+from app.guardrail.validator.registry import (
+    ValidatorRegistry,
+    load_validator_data
+) 
 
 app = FastAPI()
 
 @app.get("/validators")
 async def get_validators():
     validator_data = load_validator_data()
-    validators = validator_data.get("validators", [])
-    registry = ValidatorRegistry()
+    validators = validator_data.validators
 
     output = []
     for validator in validators:
-        validator_type = validator.get("type")
-        validator_config = registry.get(validator_type)
-        output.append({"type": validator_type, "config": validator_config.model_json_schema()})
+        validator_config = ValidatorRegistry.get(validator.type)
+        output.append({"type": validator.type , "config": validator_config.model_json_schema()})
     return {"validators": output}
